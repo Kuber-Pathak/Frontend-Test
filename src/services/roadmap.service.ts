@@ -69,17 +69,13 @@ class RoadmapService {
    * Select a roadmap as active
    */
   async selectRoadmap(roadmapId: string): Promise<Roadmap> {
-    const headers = this.getAuthHeaders();
-    console.log("[RoadmapService] selectRoadmap headers:", {
-      ...headers,
-      Authorization: headers.Authorization ? "Bearer [HIDDEN]" : "MISSING",
-    });
+    console.log("[RoadmapService] Selecting roadmap:", roadmapId);
 
     const response = await axios.post(
       `${API_BASE_URL}/api/roadmap/${roadmapId}/select`,
       {},
       {
-        headers,
+        headers: this.getAuthHeaders(),
         withCredentials: true,
       },
     );

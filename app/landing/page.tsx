@@ -22,7 +22,7 @@ export default function LandingPage() {
   const [input, setInput] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [selectedRoadmapId, setSelectedRoadmapId] = useState<string | null>(
-    null
+    null,
   );
   const { user, logout, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -138,7 +138,7 @@ export default function LandingPage() {
             Authorization: `Bearer ${token}`,
           },
           credentials: "include",
-        }
+        },
       );
 
       if (!res.ok) {
@@ -248,10 +248,10 @@ export default function LandingPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center text-sm font-bold">
-                {user?.fullName?.[0] || user?.email?.[0] || "U"}
+                {user?.name?.[0] || user?.email?.[0] || "U"}
               </div>
               <div className="text-sm">
-                <p className="font-medium">{user?.fullName || "User"}</p>
+                <p className="font-medium">{user?.name || "User"}</p>
                 <p className="text-xs text-gray-600">Free Plan</p>
               </div>
             </div>
