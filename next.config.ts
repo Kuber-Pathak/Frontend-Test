@@ -2,19 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Proxy API requests in development
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
-      },
-      {
-        source: '/health',
-        destination: 'http://localhost:8000/health',
-      },
-    ];
-  },
+  // Removed rewrites - not needed in production
+  // Frontend will use NEXT_PUBLIC_API_URL environment variable
 };
 
 export default nextConfig;
