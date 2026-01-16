@@ -77,10 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data = await res.json();
 
+    // Better Auth returns { user, session, token }
     if (data.user) {
       setUser(data.user);
     } else {
-      // Refresh session after login
+      // If user not in response, fetch session
       await checkAuth();
     }
   }
