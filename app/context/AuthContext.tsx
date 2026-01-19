@@ -9,17 +9,7 @@ import {
 } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string;
-  emailVerified: boolean;
-  role?: string;
-  image?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { authService, User } from "@/src/services/auth.service";
 
 interface AuthContextType {
   user: User | null;
@@ -38,8 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   // Check for existing session on mount
   useEffect(() => {
     checkAuth();
@@ -47,23 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function checkAuth() {
     try {
-      // Check if access token cookie exists (client-side check strictly for UI state initialization)
-      // Real validation happens via API call
-      // const accessToken = Cookies.get("accessToken");
-
-      // Call profile endpoint to validate session (uses cookie)
-      const res = await fetch(`${API_URL}/auth/profile`, {
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.user) {
-          setUser(data.user);
-        }
-      } else {
-        setUser(null);
-      }
+      const user = await authService.getProfile();
+      setUser(user);
     } catch (error) {
       console.error("Auth check failed:", error);
       setUser(null);
@@ -72,43 +45,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // Important for receiving cookies
-      body: JSON.stringify({ email, password }),
-    });
+    const response = await authService.login({ email, password });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Login failed");
+    if (!response.success) {
+      throw new Error(response.message || "Login failed");
     }
 
     // Backend returns { success, message, data: { user, accessToken, refreshToken } }
-    if (data.data && data.data.user) {
-      setUser(data.data.user);
+    if (response.data && response.data.user) {
+      setUser(response.data.user);
     } else {
       await checkAuth();
     }
   }
 
   async function signup(name: string, email: string, password: string) {
-    const res = await fetch(`${API_URL}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-      }),
-    });
+    const response = await authService.signup({ name, email, password });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Signup failed");
+    if (!response.success) {
+      throw new Error(response.message || "Signup failed");
     }
 
     // After signup, user needs to verify email. User is NOT logged in yet.
@@ -116,41 +71,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function verifyEmail(email: string, otp: string) {
-    const res = await fetch(`${API_URL}/auth/verifyOtp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
+    const response = await authService.verifyOtp({ email, otp });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Verification failed");
+    if (!response.success) {
+      throw new Error(response.message || "Verification failed");
     }
 
     // After verification, user typically needs to sign in manually
   }
 
   async function resendOtp(email: string) {
-    const res = await fetch(`${API_URL}/auth/resendOtp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
+    const response = await authService.resendOtp({ email });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to resend OTP");
+    if (!response.success) {
+      throw new Error(response.message || "Failed to resend OTP");
     }
   }
 
   async function logout() {
     try {
-      await fetch(`${API_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+      await authService.logout();
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -158,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
-    router.push("/login"); // Or /signin
+    router.push("/login");
   }
 
   return (

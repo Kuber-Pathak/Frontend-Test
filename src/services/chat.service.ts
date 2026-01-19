@@ -145,6 +145,7 @@ class ChatService {
         const response = await axios.get(`${API_BASE_URL}/api/chats`, {
           headers: this.getAuthHeaders(),
           params: { userId },
+          withCredentials: true,
         });
         // Backend returns {success: true, data: chats[]}
         return response.data.data || response.data;
@@ -160,6 +161,7 @@ class ChatService {
           `${API_BASE_URL}/api/chats/${chatId}`,
           {
             headers: this.getAuthHeaders(),
+            withCredentials: true,
           },
         );
         return response.data.data || response.data;
@@ -173,7 +175,10 @@ class ChatService {
       async () => {
         const response = await axios.get(
           `${API_BASE_URL}/api/chats/${chatId}/messages`,
-          { headers: this.getAuthHeaders() },
+          {
+            headers: this.getAuthHeaders(),
+            withCredentials: true,
+          },
         );
         return response.data.data || response.data;
       },
@@ -187,6 +192,7 @@ class ChatService {
     const result = await this.handleRequest(async () => {
       const response = await axios.post(`${API_BASE_URL}/api/chats`, data, {
         headers: this.getAuthHeaders(),
+        withCredentials: true,
       });
       console.log("[ChatService] Backend response:", response.data);
       // Backend returns {success: true, data: chatSession}
@@ -206,7 +212,10 @@ class ChatService {
       const response = await axios.post(
         `${API_BASE_URL}/api/chats/${chatId}/messages`,
         data,
-        { headers: this.getAuthHeaders() },
+        {
+          headers: this.getAuthHeaders(),
+          withCredentials: true,
+        },
       );
       return response.data.data || response.data;
     });
@@ -221,6 +230,7 @@ class ChatService {
     await this.handleRequest(async () => {
       await axios.delete(`${API_BASE_URL}/api/chats/${chatId}`, {
         headers: this.getAuthHeaders(),
+        withCredentials: true,
       });
     });
 
@@ -233,9 +243,12 @@ class ChatService {
       const response = await axios.patch(
         `${API_BASE_URL}/api/chats/${chatId}`,
         { title },
-        { headers: this.getAuthHeaders() },
+        {
+          headers: this.getAuthHeaders(),
+          withCredentials: true,
+        },
       );
-      return response.data;
+      return response.data.data || response.data;
     });
 
     // Invalidate chat cache
