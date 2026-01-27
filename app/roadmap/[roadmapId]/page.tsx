@@ -28,7 +28,7 @@ export default function RoadmapTrackerPage() {
   const [progress, setProgress] = useState<RoadmapProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedPhases, setExpandedPhases] = useState<Set<number>>(
-    new Set([0])
+    new Set([0]),
   );
 
   useEffect(() => {
@@ -75,20 +75,20 @@ export default function RoadmapTrackerPage() {
       if (isCompleted) {
         // Remove from completed
         const updatedTopics = progress!.completedTopics.filter(
-          (t) => t !== topicPath
+          (t) => t !== topicPath,
         );
         const updatedProgress = await progressService.updateProgress(
           roadmapId,
           {
             completedTopics: updatedTopics,
-          }
+          },
         );
         setProgress(updatedProgress);
       } else {
         // Mark as completed
         const updatedProgress = await progressService.completeTopic(
           roadmapId,
-          topicPath
+          topicPath,
         );
         setProgress(updatedProgress);
       }
@@ -260,23 +260,17 @@ export default function RoadmapTrackerPage() {
                             {topic.description}
                           </p>
 
-                          {topic.subtopics && topic.subtopics.length > 0 && (
-                            <div className="subtopics-list">
-                              {topic.subtopics.map(
-                                (subtopic: any, subIndex: number) => (
-                                  <div key={subIndex} className="subtopic-item">
-                                    <span className="subtopic-bullet">•</span>
-                                    <span className="subtopic-title">
-                                      {subtopic.title}
-                                    </span>
-                                    <span className="subtopic-duration">
-                                      {subtopic.estimated_hours}h
-                                    </span>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          )}
+                          {/* Learn More Button */}
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/roadmap/${roadmapId}/topic/${phaseIndex + 1}/${encodeURIComponent(topic.title)}?phaseTitle=${encodeURIComponent(phase.title)}&goal=${encodeURIComponent(roadmap.goal)}`,
+                              )
+                            }
+                            className="btn-learn-more"
+                          >
+                            📚 Learn More
+                          </button>
                         </div>
                       );
                     })}
@@ -517,6 +511,27 @@ export default function RoadmapTrackerPage() {
           font-size: 0.875rem;
           color: var(--text-secondary);
           margin: 0.5rem 0 0 2rem;
+        }
+
+        .btn-learn-more {
+          margin: 0.75rem 0 0 2rem;
+          padding: 0.5rem 1rem;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+        }
+
+        .btn-learn-more:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .subtopics-list {
